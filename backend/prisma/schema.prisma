@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  passwordHash  String
+  displayName   String?
+  avatarUrl     String?
+  bio           String?
+  shareToken    String   @unique @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  entries       Entry[]
+  sentRequests     Friendship[] @relation("SentRequests")
+  receivedRequests Friendship[] @relation("ReceivedRequests")
+}
+
+model Movie {
+  id               String   @id @default(cuid())
+  tmdbId           Int      @unique
+  title            String
+  originalTitle    String?
+  type             MediaType
+  posterUrl        String?
+  backdropUrl      String?
+  overview         String?
+  releaseYear      Int?
+  runtime          Int?
+  director         String?
+  tmdbRating       Float?
+  createdAt        DateTime @default(now())
+
+  genres           MovieGenre[]
+  entries          Entry[]
+}
+
+model Genre {
+  id     String       @id @default(cuid())
+  name   String       @unique
+  movies MovieGenre[]
+}
+
+model MovieGenre {
+  movieId  String
+  genreId  String
+
+  movie    Movie  @relation(fields: [movieId], references: [id])
+  genre    Genre  @relation(fields: [genreId], references: [id])
+
+  @@id([movieId, genreId])
+}
+
+model Entry {
+  id          String   @id @default(cuid())
+  userId      String
+  movieId     String
+  rating      Float?
+  review      String?
+  status      Status
+  watchedDate DateTime?
+  rewatchCount Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+  movie       Movie    @relation(fields: [movieId], references: [id])
+
+  @@unique([userId, movieId])
+}
+
+model Friendship {
+  id         String           @id @default(cuid())
+  senderId   String
+  receiverId String
+  status     FriendshipStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+
+  sender     User @relation("SentRequests", fields: [senderId], references: [id])
+  receiver   User @relation("ReceivedRequests", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId])
+}
+
+enum MediaType {
+  MOVIE
+  TV_SHOW
+}
+
+enum Status {
+  WATCHED
+  WATCHING
+  DROPPED
+  PLAN_TO_WATCH
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
