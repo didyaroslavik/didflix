@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import entriesRoutes from './routes/entries.routes';
+import tmdbRoutes from './routes/tmdb.routes';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/entries', entriesRoutes);
+app.use('/api/tmdb', tmdbRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
