@@ -5,6 +5,9 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import CollectionPage from './pages/CollectionPage';
 import Layout from './components/Layout';
+import PublicProfilePage from './pages/PublicProfilePage';
+import FindUsersPage from './pages/FindUsersPage';
+
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -39,6 +42,19 @@ function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Public route - no auth needed */}
+      <Route path="/u/:token" element={<PublicProfilePage />} />
+
+      {/* Protected route */}
+      <Route
+        path="/friends"
+        element={
+          <ProtectedRoute>
+            <FindUsersPage />
+          </ProtectedRoute>
+        }
+    />
     </Routes>
   );
 }
