@@ -38,7 +38,7 @@ export default function Logo({ variant = 'full', className = '' }: LogoProps) {
   return (
     <span
       aria-label="DidFlix"
-      className={`inline-flex items-center gap-[0.05em] font-display italic font-black tracking-tight select-none ${className}`}
+      className={`inline-flex items-center gap-[0.03em] font-sans font-extrabold tracking-tight select-none ${className}`}
     >
       {mark}
       <span className="text-bone">idflix</span>
