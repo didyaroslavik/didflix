@@ -1,1 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,900&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+
+/* ---------------------------------------------------------------------
+   DidFlix design tokens
+   A near-black stage with a garnet/oxblood accent (not Netflix red)
+   and a muted gold for ratings. Fraunces (serif, characterful) carries
+   headlines + the wordmark; Inter carries UI and body copy.
+--------------------------------------------------------------------- */
+@theme {
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Stage */
+  --color-abyss: #0a0a0d;
+  --color-stage: #0d0d10;
+  --color-surface: #141317;
+  --color-surface-2: #1b191d;
+  --color-surface-3: #262327;
+  --color-hairline: #2a262b;
+  --color-hairline-soft: #1d1b1f;
+
+  /* Accent — garnet, not vermilion */
+  --color-garnet-dim: #4a0f1f;
+  --color-garnet: #8f1330;
+  --color-garnet-bright: #c41e3f;
+  --color-garnet-glow: #e0294a;
+
+  /* Gold — reserved for ratings & premium accents */
+  --color-gold: #cf9d4f;
+  --color-gold-soft: #e8c98a;
+
+  /* Text */
+  --color-bone: #f2ede4;
+  --color-fog: #a8a2a6;
+  --color-slate: #706b70;
+
+  /* Status */
+  --color-status-watched: #3f9d63;
+  --color-status-watching: #4d7fc4;
+  --color-status-plan: #cf9d4f;
+  --color-status-dropped: #b8425a;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-abyss);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-garnet);
+    color: var(--color-bone);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Slim, dark scrollbars */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--color-abyss); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-surface-3);
+    border-radius: 999px;
+    border: 2px solid var(--color-abyss);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-garnet-dim); }
+}
+
+@layer components {
+  /* Cinema screen backdrop: soft vignette + film grain, used behind
+     hero/auth surfaces to avoid a flat, generic dark rectangle. */
+  .df-cinema-backdrop {
+    position: relative;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% -10%, rgba(143, 19, 48, 0.25), transparent 60%),
+      radial-gradient(ellipse 80% 60% at 100% 100%, rgba(207, 157, 79, 0.06), transparent 60%),
+      var(--color-abyss);
+  }
+
+  .df-cinema-backdrop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* Film-strip perforation divider — the signature motif */
+  .df-filmstrip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 10px;
+    padding: 0 2px;
+  }
+  .df-filmstrip span {
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--color-hairline);
+    flex-shrink: 0;
+  }
+
+  .df-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-xl);
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .df-card-hover:hover {
+    border-color: var(--color-hairline-soft);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  .df-btn-primary {
+    background: linear-gradient(180deg, var(--color-garnet-bright), var(--color-garnet));
+    color: var(--color-bone);
+    font-weight: 600;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .df-btn-primary:hover:not(:disabled) { filter: brightness(1.12); }
+  .df-btn-primary:active:not(:disabled) { transform: scale(0.98); }
+
+  .df-input {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-hairline);
+    color: var(--color-bone);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .df-input::placeholder { color: var(--color-slate); }
+  .df-input:focus {
+    border-color: var(--color-garnet-bright);
+    background: var(--color-surface);
+    outline: none;
+  }
+
+  .df-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-surface-2);
+  }
+  .df-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+    animation: df-shimmer 1.6s infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .df-skeleton::after { animation: none; }
+    .df-card-hover:hover { transform: none; }
+  }
+}
+
+@keyframes df-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes df-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.df-animate-in {
+  animation: df-fade-up 0.4s ease both;
+}

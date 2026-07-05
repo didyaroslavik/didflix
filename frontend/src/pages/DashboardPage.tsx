@@ -8,21 +8,24 @@ import {
   ResponsiveContainer, Cell
 } from 'recharts';
 
+const RATING_GRADIENT = ['#5c1a26', '#8f1330', '#b8425a', '#cf9d4f', '#e8c98a'];
+
 // --- Stat Card ---
-function StatCard({
-  label,
-  value,
-  sub
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-}) {
+function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-      <p className="text-gray-400 text-sm">{label}</p>
-      <p className="text-3xl font-bold text-white mt-1">{value}</p>
-      {sub && <p className="text-gray-500 text-xs mt-1">{sub}</p>}
+    <div className="df-card p-6">
+      <p className="text-fog text-sm">{label}</p>
+      <p className="text-3xl font-display font-semibold text-bone mt-1">{value}</p>
+      {sub && <p className="text-slate text-xs mt-1">{sub}</p>}
+    </div>
+  );
+}
+
+function StatCardSkeleton() {
+  return (
+    <div className="df-card p-6">
+      <div className="df-skeleton h-3.5 w-20 rounded mb-3" />
+      <div className="df-skeleton h-8 w-16 rounded" />
     </div>
   );
 }
@@ -30,24 +33,27 @@ function StatCard({
 // --- Entry Card ---
 function EntryCard({ entry }: { entry: Entry }) {
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+    <div className="df-card df-card-hover overflow-hidden">
       {entry.movie.posterUrl ? (
         <img
           src={`https://image.tmdb.org/t/p/w300${entry.movie.posterUrl}`}
           alt={entry.movie.title}
           className="w-full aspect-[2/3] object-cover"
+          loading="lazy"
         />
       ) : (
-        <div className="w-full aspect-[2/3] bg-gray-800 flex items-center justify-center">
-          <span className="text-gray-600 text-4xl">🎬</span>
+        <div className="w-full aspect-[2/3] bg-surface-2 flex items-center justify-center">
+          <span className="text-slate text-4xl">🎬</span>
         </div>
       )}
       <div className="p-3">
-        <p className="text-white font-medium text-sm truncate">{entry.movie.title}</p>
-        <p className="text-gray-500 text-xs">{entry.movie.releaseYear ?? '—'}</p>
-        {entry.rating && (
-          <p className="text-yellow-400 text-sm font-bold mt-1">★ {entry.rating}</p>
-        )}
+        <p className="text-bone font-medium text-sm truncate">{entry.movie.title}</p>
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-slate text-xs">{entry.movie.releaseYear ?? '—'}</p>
+          {entry.rating && (
+            <p className="text-gold text-sm font-semibold">★ {entry.rating}</p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -55,7 +61,6 @@ function EntryCard({ entry }: { entry: Entry }) {
 
 // --- Rating Distribution Chart ---
 function RatingChart({ entries }: { entries: Entry[] }) {
-  // Build buckets: 1-2, 3-4, 5-6, 7-8, 9-10
   const buckets = [
     { label: '1-2', min: 1, max: 2.9 },
     { label: '3-4', min: 3, max: 4.9 },
@@ -67,47 +72,32 @@ function RatingChart({ entries }: { entries: Entry[] }) {
   const data = buckets.map(bucket => ({
     label: bucket.label,
     count: entries.filter(
-      e => e.rating !== null &&
-        e.rating >= bucket.min &&
-        e.rating <= bucket.max
+      e => e.rating !== null && e.rating >= bucket.min && e.rating <= bucket.max
     ).length,
   }));
 
-  const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
-
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-      <h3 className="text-white font-semibold mb-4">Rating Distribution</h3>
+    <div className="df-card p-6">
+      <h3 className="text-bone font-display font-semibold mb-4">Rating distribution</h3>
       {data.every(d => d.count === 0) ? (
-        <p className="text-gray-500 text-sm">No ratings yet</p>
+        <p className="text-slate text-sm py-10 text-center">No ratings yet</p>
       ) : (
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={data} barCategoryGap="30%">
-            <XAxis
-              dataKey="label"
-              tick={{ fill: '#9ca3af', fontSize: 12 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              allowDecimals={false}
-              tick={{ fill: '#9ca3af', fontSize: 12 }}
-              axisLine={false}
-              tickLine={false}
-              width={24}
-            />
+            <XAxis dataKey="label" tick={{ fill: '#a8a2a6', fontSize: 12 }} axisLine={false} tickLine={false} />
+            <YAxis allowDecimals={false} tick={{ fill: '#a8a2a6', fontSize: 12 }} axisLine={false} tickLine={false} width={24} />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1f2937',
-                border: '1px solid #374151',
+                backgroundColor: '#1b191d',
+                border: '1px solid #2a262b',
                 borderRadius: '8px',
-                color: '#fff',
+                color: '#f2ede4',
               }}
-              cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+              cursor={{ fill: 'rgba(255,255,255,0.04)' }}
             />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {data.map((_, i) => (
-                <Cell key={i} fill={COLORS[i]} />
+                <Cell key={i} fill={RATING_GRADIENT[i]} />
               ))}
             </Bar>
           </BarChart>
@@ -120,27 +110,27 @@ function RatingChart({ entries }: { entries: Entry[] }) {
 // --- Status Breakdown ---
 function StatusBreakdown({ stats }: { stats: Stats }) {
   const items = [
-    { label: 'Watched', value: stats.totalWatched, color: 'bg-green-500' },
-    { label: 'Watching', value: stats.watching, color: 'bg-blue-500' },
-    { label: 'Plan to Watch', value: stats.planToWatch, color: 'bg-yellow-500' },
-    { label: 'Dropped', value: stats.dropped, color: 'bg-red-500' },
+    { label: 'Watched', value: stats.totalWatched, color: 'bg-status-watched' },
+    { label: 'Watching', value: stats.watching, color: 'bg-status-watching' },
+    { label: 'Plan to Watch', value: stats.planToWatch, color: 'bg-status-plan' },
+    { label: 'Dropped', value: stats.dropped, color: 'bg-status-dropped' },
   ];
 
   const total = items.reduce((sum, i) => sum + i.value, 0);
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-      <h3 className="text-white font-semibold mb-4">Collection Breakdown</h3>
-      <div className="space-y-3">
+    <div className="df-card p-6">
+      <h3 className="text-bone font-display font-semibold mb-4">Collection breakdown</h3>
+      <div className="space-y-3.5">
         {items.map(item => (
           <div key={item.label}>
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-400">{item.label}</span>
-              <span className="text-white font-medium">{item.value}</span>
+            <div className="flex justify-between text-sm mb-1.5">
+              <span className="text-fog">{item.label}</span>
+              <span className="text-bone font-medium">{item.value}</span>
             </div>
-            <div className="w-full bg-gray-800 rounded-full h-2">
+            <div className="w-full bg-surface-2 rounded-full h-2">
               <div
-                className={`${item.color} h-2 rounded-full transition-all`}
+                className={`${item.color} h-2 rounded-full transition-all duration-500`}
                 style={{ width: total > 0 ? `${(item.value / total) * 100}%` : '0%' }}
               />
             </div>
@@ -178,46 +168,36 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  if (loading) {
-    return <p className="text-gray-400">Loading dashboard...</p>;
-  }
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 df-animate-in">
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">
+        <h1 className="text-3xl font-display font-semibold text-bone">
           Welcome back, {user?.displayName || user?.username} 👋
         </h1>
-        <p className="text-gray-400 mt-1">Here's your watching overview</p>
+        <p className="text-fog mt-1">Here's your watching overview</p>
       </div>
 
       {/* Stat Cards */}
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard
-            label="Movies watched"
-            value={stats.moviesWatched}
-          />
-          <StatCard
-            label="TV shows watched"
-            value={stats.tvShowsWatched}
-          />
-          <StatCard
-            label="Average rating"
-            value={stats.averageRating ?? '—'}
-            sub="out of 10"
-          />
-          <StatCard
-            label="Total in collection"
-            value={stats.totalWatched + stats.planToWatch + stats.watching + stats.dropped}
-          />
-        </div>
-      )}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {loading || !stats ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard label="Movies watched" value={stats.moviesWatched} />
+            <StatCard label="TV shows watched" value={stats.tvShowsWatched} />
+            <StatCard label="Average rating" value={stats.averageRating ?? '—'} sub="out of 10" />
+            <StatCard
+              label="Total in collection"
+              value={stats.totalWatched + stats.planToWatch + stats.watching + stats.dropped}
+            />
+          </>
+        )}
+      </div>
 
       {/* Charts Row */}
-      {stats && (
+      {stats && !loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <RatingChart entries={allEntries} />
           <StatusBreakdown stats={stats} />
@@ -227,16 +207,23 @@ export default function DashboardPage() {
       {/* Recently Added */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white">Recently added</h2>
-          <Link to="/collection" className="text-blue-400 hover:text-blue-300 text-sm">
+          <h2 className="text-xl font-display font-semibold text-bone">Recently added</h2>
+          <Link to="/collection" className="text-gold hover:text-gold-soft text-sm transition-colors">
             View all →
           </Link>
         </div>
 
-        {recentEntries.length === 0 ? (
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-12 text-center">
-            <p className="text-gray-400">Your collection is empty.</p>
-            <p className="text-gray-600 text-sm mt-1">Add your first movie to get started!</p>
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="df-skeleton aspect-[2/3] rounded-xl" />
+            ))}
+          </div>
+        ) : recentEntries.length === 0 ? (
+          <div className="df-card p-12 text-center">
+            <p className="text-4xl mb-3">🎬</p>
+            <p className="text-fog">Your collection is empty.</p>
+            <p className="text-slate text-sm mt-1">Add your first movie to get started!</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">

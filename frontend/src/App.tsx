@@ -7,19 +7,20 @@ import CollectionPage from './pages/CollectionPage';
 import Layout from './components/Layout';
 import PublicProfilePage from './pages/PublicProfilePage';
 import FindUsersPage from './pages/FindUsersPage';
+import Logo from './components/Logo';
 
+function FullScreenLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-abyss">
+      <Logo className="text-3xl opacity-70 animate-pulse" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
-  }
-
+  if (loading) return <FullScreenLoader />;
   if (!user) return <Navigate to="/login" replace />;
   return <Layout>{children}</Layout>;
 }
@@ -27,13 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
-  }
+  if (loading) return <FullScreenLoader />;
 
   return (
     <Routes>
@@ -41,12 +36,10 @@ function AppRoutes() {
       <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
       {/* Public route - no auth needed */}
       <Route path="/u/:token" element={<PublicProfilePage />} />
 
-      {/* Protected route */}
       <Route
         path="/friends"
         element={
@@ -54,7 +47,9 @@ function AppRoutes() {
             <FindUsersPage />
           </ProtectedRoute>
         }
-    />
+      />
+
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
