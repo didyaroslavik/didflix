@@ -37,10 +37,10 @@ export class AuthController {
 
       // Set token as HTTP-only cookie
       res.cookie('token', token, {
-        httpOnly: true,    // JavaScript cannot read this cookie
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       res.json({ message: 'Logged in successfully', user });
