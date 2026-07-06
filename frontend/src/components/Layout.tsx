@@ -6,16 +6,16 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 const NAV_LINKS = [
-  { path: '/dashboard', label: 'Dashboard' },
-  { path: '/collection', label: 'My Collection' },
-  { path: '/friends', label: 'Find Users' },
+  { path: '/dashboard', labelKey: 'nav.dashboard' },
+  { path: '/collection', labelKey: 'nav.collection' },
+  { path: '/friends', labelKey: 'nav.findUsers' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
 
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const LANGS = [
     { code: 'en', label: 'EN' },
@@ -67,7 +67,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         active ? 'text-bone' : 'text-fog hover:text-bone'
                       }`}
                     >
-                      {link.label}
+                      {t(link.labelKey)}
                       {active && (
                         <span className="absolute left-3 right-3 -bottom-[1px] h-[2px] rounded-full bg-garnet-bright" />
                       )}
@@ -98,7 +98,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 onClick={handleShare}
                 className="relative text-sm bg-surface-2 hover:bg-surface-3 border border-hairline text-fog hover:text-bone px-3 py-1.5 rounded-lg transition-colors"
               >
-                {copied ? 'Link copied ✓' : 'Share profile'}
+                {copied ? t('nav.linkCopied') : t('nav.shareProfile')}
               </button>
 
               <div className="h-6 w-px bg-hairline" />
@@ -116,11 +116,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 onClick={handleLogout}
                 className="text-sm text-slate hover:text-bone transition-colors"
               >
-                Log out
+                {t('nav.logOut')}
               </button>
             </div>
 
-            {/* Mobile trigger */}
             <button
               onClick={() => setMobileOpen(o => !o)}
               className="md:hidden text-fog hover:text-bone p-2 -mr-2"
@@ -136,9 +135,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-hairline bg-stage px-4 pb-4 pt-2 space-y-1 df-animate-in">
+          <div className="md:hidden border-t border-hairline bg-stage px-4 pb-4 pt-4 space-y-1 df-animate-in">
+            
+            <div className="flex items-center justify-center bg-surface-2 border border-hairline rounded-lg overflow-hidden mb-4 w-fit mx-auto">
+              {LANGS.map(lang => (
+                <button
+                  key={lang.code}
+                  onClick={() => {
+                    switchLang(lang.code);
+                    setMobileOpen(false);
+                  }}
+                  className={`px-4 py-1.5 text-xs font-medium transition-colors ${
+                    i18n.language === lang.code
+                      ? 'bg-garnet text-bone'
+                      : 'text-slate hover:text-bone'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+
             {NAV_LINKS.map(link => (
               <Link
                 key={link.path}
@@ -150,7 +168,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     : 'text-fog hover:bg-surface-2 hover:text-bone'
                 }`}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
 
@@ -167,13 +185,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onClick={handleShare}
               className="w-full text-left text-sm text-fog hover:text-bone px-3 py-2.5 rounded-lg hover:bg-surface-2 transition-colors"
             >
-              {copied ? 'Link copied ✓' : 'Share profile'}
+              {copied ? t('nav.linkCopied') : t('nav.shareProfile')}
             </button>
             <button
               onClick={handleLogout}
               className="w-full text-left text-sm text-slate hover:text-bone px-3 py-2.5 rounded-lg hover:bg-surface-2 transition-colors"
             >
-              Log out
+              {t('nav.logOut')}
             </button>
           </div>
         )}

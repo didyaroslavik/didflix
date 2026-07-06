@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 
 export default function LoginPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,6 +13,17 @@ export default function LoginPage() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const LANGS = [
+    { code: 'en', label: 'EN' },
+    { code: 'ua', label: 'UA' },
+    { code: 'pl', label: 'PL' }
+  ];
+
+  const switchLang = (code: string) => {
+    i18n.changeLanguage(code);
+    localStorage.setItem('didflix-lang', code);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +42,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen df-cinema-backdrop flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen df-cinema-backdrop flex items-center justify-center px-4 py-12 relative">
+      
+      <div className="absolute top-6 right-6 flex items-center bg-surface-2 border border-hairline rounded-lg overflow-hidden z-50">
+        {LANGS.map(lang => (
+          <button
+            key={lang.code}
+            onClick={() => switchLang(lang.code)}
+            className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+              i18n.language === lang.code
+                ? 'bg-garnet text-bone'
+                : 'text-slate hover:text-bone'
+            }`}
+          >
+            {lang.label}
+          </button>
+        ))}
+      </div>
+
       <div className="w-full max-w-md df-animate-in">
         <div className="text-center mb-8">
           <Logo className="text-5xl" />
