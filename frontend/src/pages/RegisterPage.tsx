@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -20,7 +22,7 @@ export default function RegisterPage() {
     setError('');
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError(t('auth.passwordTooShort'));
       return;
     }
 
@@ -41,10 +43,9 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen df-cinema-backdrop flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md df-animate-in">
-
         <div className="text-center mb-8">
           <Logo className="text-5xl" />
-          <p className="text-fog mt-3">Track every movie you've ever seen</p>
+          <p className="text-fog mt-3">{t('auth.tagline')}</p>
         </div>
 
         <div className="df-card overflow-hidden">
@@ -53,7 +54,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="p-8">
-            <h2 className="text-xl font-display font-semibold text-bone mb-6">Create your account</h2>
+            <h2 className="text-xl font-display font-semibold text-bone mb-6">{t('auth.createAccount')}</h2>
 
             {error && (
               <div className="bg-garnet-dim/30 border border-garnet/50 text-garnet-glow rounded-lg px-4 py-3 mb-5 text-sm">
@@ -64,7 +65,7 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-fog mb-1.5">
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   id="email"
@@ -79,7 +80,7 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-fog mb-1.5">
-                  Username
+                  {t('auth.username')}
                 </label>
                 <input
                   id="username"
@@ -94,7 +95,7 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="displayName" className="block text-sm font-medium text-fog mb-1.5">
-                  Display name <span className="text-slate">(optional)</span>
+                  {t('auth.displayName')} <span className="text-slate">{t('auth.displayNameHint')}</span>
                 </label>
                 <input
                   id="displayName"
@@ -108,7 +109,7 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-fog mb-1.5">
-                  Password
+                  {t('auth.password')}
                 </label>
                 <input
                   id="password"
@@ -116,7 +117,7 @@ export default function RegisterPage() {
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Min. 8 characters"
+                  placeholder={t('auth.passwordHint')}
                   className="df-input w-full rounded-lg px-4 py-2.5"
                 />
               </div>
@@ -126,14 +127,14 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="df-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed rounded-lg px-4 py-2.5 mt-2"
               >
-                {loading ? 'Creating account…' : 'Create account'}
+                {loading ? t('auth.creating') : t('auth.createBtn')}
               </button>
             </form>
 
             <p className="text-center text-fog text-sm mt-6">
-              Already have an account?{' '}
+              {t('auth.haveAccount')}{' '}
               <Link to="/login" className="text-gold hover:text-gold-soft transition-colors">
-                Sign in
+                {t('auth.signInLink')}
               </Link>
             </p>
           </div>

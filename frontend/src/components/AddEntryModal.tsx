@@ -25,7 +25,6 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
   // Debounced search — waits 400ms after user stops typing
   useEffect(() => {
     if (query.length < 2) {
-      setResults([]);
       return;
     }
 
@@ -67,6 +66,14 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
     if (!selected) {
       setError('Please search and select a title first');
       return;
+    }
+
+    if (rating) {
+      const r = parseFloat(rating);
+      if (isNaN(r) || r < 1 || r > 10) {
+        setError('Rating must be between 1.0 and 10.0');
+        return;
+      }
     }
 
     setLoading(true);
@@ -225,8 +232,13 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
                 max="10"
                 step="0.1"
                 value={rating}
-                onChange={e => setRating(e.target.value)}
-                placeholder="8.5"
+                onChange={e => {
+                  const val = e.target.value;
+                  if (val === '' || (parseFloat(val) >= 1 && parseFloat(val) <= 10)) {
+                    setRating(val);
+                  }
+                }}
+                placeholder="1.0 - 10.0"
                 className="df-input w-full rounded-lg px-4 py-2.5"
               />
             </div>

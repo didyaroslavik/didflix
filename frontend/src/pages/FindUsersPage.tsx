@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { publicApi, type UserSearchResult } from '../api/public';
+import { useTranslation } from 'react-i18next';
 
 function ResultSkeleton() {
   return (
@@ -15,6 +16,9 @@ function ResultSkeleton() {
 }
 
 export default function FindUsersPage() {
+  const { t } = useTranslation();
+  
+  // These states accidentally got deleted, putting them back!
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -22,13 +26,16 @@ export default function FindUsersPage() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    // If we have a pending search, clear it when the query changes
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
     if (query.length < 2) {
-      setResults([]);
-      setSearched(false);
+      setTimeout(() => {
+        setResults([]);
+        setSearched(false);
+      }, 0);
       return;
     }
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
@@ -51,8 +58,8 @@ export default function FindUsersPage() {
   return (
     <div className="space-y-6 max-w-2xl df-animate-in">
       <div>
-        <h1 className="text-3xl font-display font-semibold text-bone">Find Users</h1>
-        <p className="text-fog mt-1">Search for people on DidFlix</p>
+        <h1 className="text-3xl font-display font-semibold text-bone">{t('findUsers.title')}</h1>
+        <p className="text-fog mt-1">{t('findUsers.subtitle')}</p>
       </div>
 
       <div className="relative">
@@ -67,7 +74,7 @@ export default function FindUsersPage() {
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Search by username..."
+          placeholder={t('findUsers.placeholder')}
           autoFocus
           className="df-input w-full rounded-xl pl-11 pr-4 py-3"
         />
@@ -83,7 +90,7 @@ export default function FindUsersPage() {
 
         {!searching && searched && results.length === 0 && (
           <div className="df-card p-10 text-center">
-            <p className="text-fog">No users found for "{query}"</p>
+            <p className="text-fog">{t('findUsers.noResults')} "{query}"</p>
           </div>
         )}
 
@@ -102,7 +109,7 @@ export default function FindUsersPage() {
               </p>
               <p className="text-fog text-sm">@{user.username}</p>
               <p className="text-slate text-xs mt-0.5">
-                {user._count.entries} titles in collection
+                {user._count.entries} {t('findUsers.titles')}
               </p>
             </div>
             <span className="ml-auto text-slate">→</span>

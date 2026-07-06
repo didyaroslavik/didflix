@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { publicApi, type PublicProfile, type PublicStats } from '../api/public';
 import type { Entry } from '../types';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import Logo from '../components/Logo';
 
 const STATUS_CLASSES: Record<string, string> = {
@@ -11,12 +13,16 @@ const STATUS_CLASSES: Record<string, string> = {
   DROPPED: 'bg-status-dropped/15 text-status-dropped',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  WATCHED: 'Watched',
-  WATCHING: 'Watching',
-  PLAN_TO_WATCH: 'Plan to Watch',
-  DROPPED: 'Dropped',
-};
+// Helper function to translate status dynamically
+function getStatusLabel(status: string, t: TFunction) {
+  const map: Record<string, string> = {
+    WATCHED: t('collection.watched'),
+    WATCHING: t('collection.watching'),
+    PLAN_TO_WATCH: t('collection.planToWatch'),
+    DROPPED: t('collection.dropped'),
+  };
+  return map[status] || status;
+}
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -28,6 +34,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 }
 
 export default function PublicProfilePage() {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [stats, setStats] = useState<PublicStats | null>(null);
@@ -52,7 +59,7 @@ export default function PublicProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen df-cinema-backdrop flex items-center justify-center">
-        <p className="text-fog">Loading profile...</p>
+        <p className="text-fog">{t('profile.loading')}</p>
       </div>
     );
   }
@@ -62,10 +69,10 @@ export default function PublicProfilePage() {
       <div className="min-h-screen df-cinema-backdrop flex items-center justify-center px-4">
         <div className="text-center df-animate-in">
           <p className="text-4xl mb-4">🎬</p>
-          <p className="text-bone text-xl font-display font-semibold">Profile not found</p>
-          <p className="text-fog mt-2">This link may be invalid or expired.</p>
+          <p className="text-bone text-xl font-display font-semibold">{t('profile.notFound')}</p>
+          <p className="text-fog mt-2">{t('profile.notFoundHint')}</p>
           <Link to="/login" className="text-gold hover:text-gold-soft mt-4 inline-block transition-colors">
-            Go to DidFlix →
+            {t('profile.goTo')}
           </Link>
         </div>
       </div>
@@ -82,11 +89,9 @@ export default function PublicProfilePage() {
 
   return (
     <div className="min-h-screen bg-abyss">
-      {/* Header */}
       <div className="df-cinema-backdrop border-b border-hairline">
         <div className="max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-4 flex-wrap">
-
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-garnet-bright to-garnet-dim flex items-center justify-center text-2xl font-bold text-bone flex-shrink-0">
               {(profile?.displayName || profile?.username || '?')[0].toUpperCase()}
             </div>
@@ -97,7 +102,7 @@ export default function PublicProfilePage() {
               </h1>
               <p className="text-fog">@{profile?.username}</p>
               {memberYear && (
-                <p className="text-slate text-sm mt-1">Member since {memberYear}</p>
+                <p className="text-slate text-sm mt-1">{t('profile.memberSince')} {memberYear}</p>
               )}
             </div>
 
@@ -110,35 +115,34 @@ export default function PublicProfilePage() {
 
           {stats && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
-              <StatCard label="Movies watched" value={stats.moviesWatched} />
-              <StatCard label="TV shows watched" value={stats.tvShowsWatched} />
-              <StatCard label="Avg rating" value={stats.averageRating ?? '—'} />
-              <StatCard label="Total entries" value={stats.totalInCollection} />
+              <StatCard label={t('profile.moviesWatched')} value={stats.moviesWatched} />
+              <StatCard label={t('profile.tvWatched')} value={stats.tvShowsWatched} />
+              <StatCard label={t('profile.avgRating')} value={stats.averageRating ?? '—'} />
+              <StatCard label={t('profile.totalEntries')} value={stats.totalInCollection} />
             </div>
           )}
         </div>
       </div>
 
-      {/* Collection */}
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-4 gap-3">
-          <h2 className="text-xl font-display font-semibold text-bone">Collection</h2>
+          <h2 className="text-xl font-display font-semibold text-bone">{t('profile.collection')}</h2>
 
           <select
             value={filter}
             onChange={e => setFilter(e.target.value)}
             className="df-input rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">All</option>
-            <option value="WATCHED">Watched</option>
-            <option value="WATCHING">Watching</option>
-            <option value="PLAN_TO_WATCH">Plan to Watch</option>
-            <option value="DROPPED">Dropped</option>
+            <option value="">{t('profile.all')}</option>
+            <option value="WATCHED">{t('collection.watched')}</option>
+            <option value="WATCHING">{t('collection.watching')}</option>
+            <option value="PLAN_TO_WATCH">{t('collection.planToWatch')}</option>
+            <option value="DROPPED">{t('collection.dropped')}</option>
           </select>
         </div>
 
         {filteredEntries.length === 0 ? (
-          <p className="text-slate text-center py-16">Nothing here yet.</p>
+          <p className="text-slate text-center py-16">{t('profile.nothing')}</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {filteredEntries.map(entry => (
@@ -170,7 +174,7 @@ export default function PublicProfilePage() {
                     )}
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full mt-2 inline-block ${STATUS_CLASSES[entry.status]}`}>
-                    {STATUS_LABELS[entry.status]}
+                    {getStatusLabel(entry.status, t)}
                   </span>
                 </div>
               </div>

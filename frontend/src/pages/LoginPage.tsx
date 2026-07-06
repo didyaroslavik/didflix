@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -31,21 +33,18 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen df-cinema-backdrop flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md df-animate-in">
-
-        {/* Logo */}
         <div className="text-center mb-8">
           <Logo className="text-5xl" />
-          <p className="text-fog mt-3">Track every movie you've ever seen</p>
+          <p className="text-fog mt-3">{t('auth.tagline')}</p>
         </div>
 
-        {/* Card */}
         <div className="df-card overflow-hidden">
           <div className="df-filmstrip px-6 pt-5">
             {Array.from({ length: 14 }).map((_, i) => <span key={i} />)}
           </div>
 
           <div className="p-8">
-            <h2 className="text-xl font-display font-semibold text-bone mb-6">Welcome back</h2>
+            <h2 className="text-xl font-display font-semibold text-bone mb-6">{t('auth.welcomeBack')}</h2>
 
             {error && (
               <div className="bg-garnet-dim/30 border border-garnet/50 text-garnet-glow rounded-lg px-4 py-3 mb-5 text-sm">
@@ -56,7 +55,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-fog mb-1.5">
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   id="email"
@@ -71,7 +70,7 @@ export default function LoginPage() {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-fog mb-1.5">
-                  Password
+                  {t('auth.password')}
                 </label>
                 <input
                   id="password"
@@ -89,14 +88,14 @@ export default function LoginPage() {
                 disabled={loading}
                 className="df-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed rounded-lg px-4 py-2.5 mt-2"
               >
-                {loading ? 'Signing in…' : 'Sign in'}
+                {loading ? t('auth.signingIn') : t('auth.signIn')}
               </button>
             </form>
 
             <p className="text-center text-fog text-sm mt-6">
-              Don't have an account?{' '}
+              {t('auth.noAccount')}{' '}
               <Link to="/register" className="text-gold hover:text-gold-soft transition-colors">
-                Create one
+                {t('auth.createOne')}
               </Link>
             </p>
           </div>

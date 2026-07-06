@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const NAV_LINKS = [
   { path: '/dashboard', label: 'Dashboard' },
@@ -13,6 +14,20 @@ const NAV_LINKS = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
+
+  const { i18n } = useTranslation();
+
+  const LANGS = [
+    { code: 'en', label: 'EN' },
+    { code: 'ua', label: 'UA' },
+    { code: 'pl', label: 'PL' }
+  ];
+
+  const switchLang = (code: string) => {
+    i18n.changeLanguage(code);
+    localStorage.setItem('didflix-lang', code);
+  };
+  
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -63,6 +78,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="hidden md:flex items-center gap-4">
+              <div className="flex items-center bg-surface-2 border border-hairline rounded-lg overflow-hidden">
+                {LANGS.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => switchLang(lang.code)}
+                    className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                      i18n.language === lang.code
+                       ? 'bg-garnet text-bone'
+                        : 'text-slate hover:text-bone'
+                    }`}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+              
               <button
                 onClick={handleShare}
                 className="relative text-sm bg-surface-2 hover:bg-surface-3 border border-hairline text-fog hover:text-bone px-3 py-1.5 rounded-lg transition-colors"
