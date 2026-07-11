@@ -25,29 +25,29 @@ export class AuthController {
   }
 
   async login(req: Request, res: Response) {
-    try {
-      const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-      if (!email || !password) {
-        res.status(400).json({ error: 'Email and password are required' });
-        return;
-      }
-
-      const { user, token } = await authService.login({ email, password });
-
-      // Set token as HTTP-only cookie
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
-      res.json({ message: 'Logged in successfully', user });
-    } catch (error: any) {
-      res.status(401).json({ error: error.message });
+    if (!email || !password) {
+      res.status(400).json({ error: 'Email and password are required' });
+      return;
     }
+
+    const { user, token } = await authService.login({ email, password });
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // Also send token in body for Safari fallback
+    res.json({ message: 'Logged in successfully', user, token });
+  } catch (error: any) {
+    res.status(401).json({ error: error.message });
   }
+}
 
   async logout(req: Request, res: Response) {
     res.clearCookie('token');

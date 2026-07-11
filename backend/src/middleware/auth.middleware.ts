@@ -8,7 +8,15 @@ export async function requireAuth(
   next: NextFunction
 ) {
   try {
-    const token = req.cookies?.token;
+    // Try cookie first, then Authorization header (for Safari)
+    let token = req.cookies?.token;
+
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
 
     if (!token) {
       res.status(401).json({ error: 'Not authenticated' });
@@ -38,7 +46,7 @@ export async function requireAuth(
     }
 
     (req as any).user = user;
-    next(); // pass control to the next handler
+    next();
   } catch (error) {
     res.status(401).json({ error: 'Invalid or expired token' });
   }
