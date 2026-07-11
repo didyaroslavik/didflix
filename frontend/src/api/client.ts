@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getMemoryToken } from './auth';
+import { tokenStore } from './tokenStore';
 
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
@@ -7,9 +7,8 @@ const client = axios.create({
   timeout: 30000,
 });
 
-// Attach token to every request for Safari compatibility
 client.interceptors.request.use(config => {
-  const token = getMemoryToken();
+  const token = tokenStore.get();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

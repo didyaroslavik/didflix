@@ -3,26 +3,36 @@ import { authService } from '../services/auth.service';
 
 export class AuthController {
   async register(req: Request, res: Response) {
-    try {
-      const { email, username, password, displayName } = req.body;
+  try {
+    const { email, username, password, displayName } = req.body;
 
-      if (!email || !username || !password) {
-        res.status(400).json({ error: 'Email, username and password are required' });
-        return;
-      }
-
-      const user = await authService.register({
-        email,
-        username,
-        password,
-        displayName,
-      });
-
-      res.status(201).json({ message: 'Account created successfully', user });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+    if (!email || !username || !password) {
+      res.status(400).json({ error: 'Email, username and password are required' });
+      return;
     }
+
+    const user = await authService.register({
+      email,
+      username,
+      password,
+      displayName,
+    });
+
+    // Auto-login after register — create a token
+    const { token } = await authService.login({ email, password });
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({ message: 'Account created successfully', user, token });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
   }
+}
 
   async login(req: Request, res: Response) {
   try {

@@ -1,21 +1,6 @@
 import client from './client';
+import { tokenStore } from './tokenStore';
 import type { User } from '../types';
-
-// Store token in memory for Safari fallback
-let memoryToken: string | null = null;
-
-export function setMemoryToken(token: string | null) {
-  memoryToken = token;
-  if (token) {
-    localStorage.setItem('didflix-token', token);
-  } else {
-    localStorage.removeItem('didflix-token');
-  }
-}
-
-export function getMemoryToken(): string | null {
-  return memoryToken || localStorage.getItem('didflix-token');
-}
 
 export const authApi = {
   register: async (data: {
@@ -28,7 +13,7 @@ export const authApi = {
       '/auth/register',
       data
     );
-    if (res.data.token) setMemoryToken(res.data.token);
+    if (res.data.token) tokenStore.set(res.data.token);
     return res.data;
   },
 
@@ -37,13 +22,13 @@ export const authApi = {
       '/auth/login',
       data
     );
-    if (res.data.token) setMemoryToken(res.data.token);
+    if (res.data.token) tokenStore.set(res.data.token);
     return res.data;
   },
 
   logout: async () => {
     await client.post('/auth/logout');
-    setMemoryToken(null);
+    tokenStore.clear();
   },
 
   me: async () => {
