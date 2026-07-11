@@ -13,6 +13,7 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
   const [results, setResults] = useState<TmdbResult[]>([]);
   const [selected, setSelected] = useState<TmdbResult | null>(null);
   const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState(false);
 
   const [status, setStatus] = useState('WATCHED');
   const [rating, setRating] = useState('');
@@ -32,11 +33,14 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
 
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
+      setSearchError(false);
       try {
         const data = await tmdbApi.search(query);
         setResults(data);
+        // If backend was sleeping and woke up but returned empty
+        if (data.length === 0) setSearchError(false);
       } catch {
-        // silently fail search
+        setSearchError(true);
       } finally {
         setSearching(false);
       }
@@ -141,16 +145,37 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
               <input
                 type="text"
                 value={query}
-                onChange={e => setQuery(e.target.value)}
+                onChange={e => {
+                  const val = e.target.value;
+                  setQuery(val);
+    
+                  // Clear results immediately when the input is too short
+                  if (val.length < 2) {
+                    setResults([]);
+                    setSearchError(false);
+                  }
+                }}
                 placeholder="e.g. Interstellar"
                 autoFocus
                 className="df-input w-full rounded-lg px-4 py-2.5"
               />
 
               {searching && (
-                <p className="text-slate text-sm mt-2">Searching...</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="w-4 h-4 border-2 border-garnet border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-slate text-sm">
+                    Searching... (first search may take a moment)
+                  </p>
+                </div>
               )}
-              {results.length > 0 && (
+
+              {searchError && (
+                <div className="mt-2 bg-garnet-dim/30 border border-garnet/50 text-garnet-glow rounded-lg p-3 text-sm">
+                  Server is waking up — please try again in a few seconds.
+                </div>
+              )}
+
+              {!searching && !searchError && results.length > 0 && (
                 <div className="mt-2 bg-surface-2 rounded-lg border border-hairline overflow-hidden">
                   {results.map(result => (
                     <button
@@ -178,6 +203,10 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
                     </button>
                   ))}
                 </div>
+              )}
+
+              {!searching && !searchError && query.length >= 2 && results.length === 0 && (
+                <p className="text-slate text-sm mt-2">No results found for "{query}"</p>
               )}
             </div>
           )}

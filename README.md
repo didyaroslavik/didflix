@@ -63,11 +63,11 @@ didflix/
 │       ├── pages/     # Route-level page components
 │       └── types/     # Shared TypeScript interfaces
 └── backend/           # Express REST API
-└── src/
-├── controllers/
-├── middleware/ # JWT auth guard
-├── routes/
-└── services/  # Business logic layer
+    └── src/
+        ├── controllers/
+        ├── middleware/# JWT auth guard
+        ├── routes/
+        └── services/  # Business logic layer
 
 ---
 
