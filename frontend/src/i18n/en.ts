@@ -48,6 +48,7 @@ export default {
     edit: 'Edit',
     movie: 'Movie',
     tvShow: 'TV Show',
+    lowestRated: 'Lowest rated',
   },
   modal: {
     addTitle: 'Add to collection',

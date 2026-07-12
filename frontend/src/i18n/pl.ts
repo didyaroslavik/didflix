@@ -48,6 +48,7 @@ export default {
     edit: 'Edytuj',
     movie: 'Film',
     tvShow: 'Serial',
+    lowestRated: 'Najniżej oceniane',
   },
   modal: {
     addTitle: 'Dodaj do kolekcji',

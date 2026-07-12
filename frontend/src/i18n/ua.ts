@@ -48,6 +48,7 @@ export default {
     edit: 'Редагувати',
     movie: 'Фільм',
     tvShow: 'Серіал',
+    lowestRated: 'Найнижча оцінка',
   },
   modal: {
     addTitle: 'Додати до колекції',

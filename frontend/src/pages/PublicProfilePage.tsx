@@ -34,7 +34,19 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 }
 
 export default function PublicProfilePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  
+  const LANGS = [
+    { code: 'en', label: 'EN' },
+    { code: 'ua', label: 'UA' },
+    { code: 'pl', label: 'PL' },
+  ];
+
+  const switchLang = (code: string) => {
+    i18n.changeLanguage(code);
+    localStorage.setItem('didflix-lang', code);
+  };
+
   const { token } = useParams<{ token: string }>();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [stats, setStats] = useState<PublicStats | null>(null);
@@ -42,6 +54,7 @@ export default function PublicProfilePage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [filter, setFilter] = useState('');
+  const [sort, setSort] = useState('newest');
 
   useEffect(() => {
     if (!token) return;
@@ -58,9 +71,38 @@ export default function PublicProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen df-cinema-backdrop flex items-center justify-center">
-        <p className="text-fog">{t('profile.loading')}</p>
-      </div>
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+  <h2 className="text-xl font-display font-semibold text-bone">
+    {t('profile.collection')}
+  </h2>
+
+  <div className="flex items-center gap-2">
+    {/* Sort */}
+    <select
+      value={sort}
+      onChange={e => setSort(e.target.value)}
+      className="df-input rounded-lg px-3 py-2 text-sm"
+    >
+      <option value="newest">{t('collection.newest')}</option>
+      <option value="rating">{t('collection.highestRated')}</option>
+      <option value="rating_asc">Lowest rated</option>
+      <option value="title">{t('collection.alphabetical')}</option>
+    </select>
+
+    {/* Filter */}
+    <select
+      value={filter}
+      onChange={e => setFilter(e.target.value)}
+      className="df-input rounded-lg px-3 py-2 text-sm"
+    >
+      <option value="">{t('profile.all')}</option>
+      <option value="WATCHED">{t('collection.watched')}</option>
+      <option value="WATCHING">{t('collection.watching')}</option>
+      <option value="PLAN_TO_WATCH">{t('collection.planToWatch')}</option>
+      <option value="DROPPED">{t('collection.dropped')}</option>
+    </select>
+  </div>
+</div>
     );
   }
 
@@ -79,9 +121,15 @@ export default function PublicProfilePage() {
     );
   }
 
-  const filteredEntries = filter
-    ? entries.filter(e => e.status === filter)
-    : entries;
+  const filteredEntries = entries
+  .filter(e => filter ? e.status === filter : true)
+  .sort((a, b) => {
+    if (sort === 'rating') return (b.rating ?? 0) - (a.rating ?? 0);
+    if (sort === 'rating_asc') return (a.rating ?? 0) - (b.rating ?? 0);
+    if (sort === 'title') return a.movie.title.localeCompare(b.movie.title);
+    // newest first (default)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   const memberYear = profile?.memberSince
     ? new Date(profile.memberSince).getFullYear()
@@ -106,7 +154,24 @@ export default function PublicProfilePage() {
               )}
             </div>
 
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-3">
+              {/* Language switcher */}
+              <div className="flex items-center bg-surface-2 border border-hairline rounded-lg overflow-hidden">
+                {LANGS.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => switchLang(lang.code)}
+                    className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                      i18n.language === lang.code
+                        ? 'bg-garnet text-bone'
+                        : 'text-slate hover:text-bone'
+                    }`}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+
               <Link to="/login">
                 <Logo variant="mark" className="text-3xl" />
               </Link>
