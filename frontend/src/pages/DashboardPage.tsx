@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { entriesApi } from '../api/entries';
 import type { Entry, Stats } from '../types';
 import { useTranslation } from 'react-i18next';
+import { useRandomGreeting } from '../hooks/useRandomGreeting';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell
@@ -143,6 +144,7 @@ function StatusBreakdown({ stats }: { stats: Stats }) {
 export default function DashboardPage() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const greeting = useRandomGreeting();
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentEntries, setRecentEntries] = useState<Entry[]>([]);
   const [allEntries, setAllEntries] = useState<Entry[]>([]);
@@ -170,8 +172,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 df-animate-in">
       <div>
+        <p className="text-fog text-sm mb-1">{greeting} 👋</p>
         <h1 className="text-3xl font-display font-semibold text-bone">
-          {t('dashboard.welcome')}, {user?.displayName || user?.username} 👋
+          {user?.displayName || user?.username}
         </h1>
         <p className="text-fog mt-1">{t('dashboard.overview')}</p>
       </div>

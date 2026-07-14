@@ -115,4 +115,16 @@ export default {
     totalEntries: 'Total entries',
     nothing: 'Nothing here yet.',
   },
+  greetings: [
+    "Lights, camera, action",
+    "Your couch called. It misses you",
+    "Another day, another movie",
+    "Popcorn ready?",
+    "The director has entered the building",
+    "Roll the credits",
+    "What are we watching tonight?",
+    "Cinema mode: activated",
+    "Your watchlist won't watch itself",
+    "The screen is waiting",
+  ]
 };

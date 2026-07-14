@@ -115,4 +115,16 @@ export default {
     totalEntries: 'Łącznie wpisów',
     nothing: 'Nic tu jeszcze nie ma.',
   },
+  greetings: [
+    "Światła, kamera, akcja",
+    "Twoja kanapa za tobą tęskni",
+    "Kolejny dzień, kolejny film",
+    "Popcorn gotowy?",
+    "Reżyser wszedł do budynku",
+    "Napisy końcowe",
+    "Co oglądamy dziś wieczór?",
+    "Tryb kinowy: aktywowany",
+    "Lista filmów się sama nie obejrzy",
+    "Ekran czeka",
+  ]
 };
