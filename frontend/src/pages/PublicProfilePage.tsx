@@ -33,6 +33,81 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+// Reusable MovieCard component
+function MovieCard({ entry, t }: { entry: Entry; t: TFunction }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div
+      className="df-card df-card-hover overflow-hidden cursor-pointer"
+      onClick={() => setExpanded(e => !e)}
+    >
+      <div className="relative">
+        {entry.movie.posterUrl ? (
+          <img
+            src={`https://image.tmdb.org/t/p/w300${entry.movie.posterUrl}`}
+            alt={entry.movie.title}
+            className="w-full aspect-[2/3] object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full aspect-[2/3] bg-surface-2 flex items-center justify-center">
+            <span className="text-3xl">🎬</span>
+          </div>
+        )}
+        {entry.rating && (
+          <div className="absolute top-2 right-2 bg-abyss/80 backdrop-blur-sm text-gold text-xs font-bold px-2 py-1 rounded-lg">
+            ★ {entry.rating}
+          </div>
+        )}
+      </div>
+
+      <div className="p-3">
+        <p className="text-bone text-sm font-medium truncate">
+          {entry.movie.title}
+        </p>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-slate text-xs">
+            {entry.movie.releaseYear ?? '—'}
+          </span>
+          <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_CLASSES[entry.status]}`}>
+            {getStatusLabel(entry.status, t)}
+          </span>
+        </div>
+
+        {/* Expandable description */}
+        {expanded && (
+          <div className="mt-3 space-y-2 border-t border-hairline pt-3">
+            {entry.review && (
+              <div>
+                <p className="text-fog text-xs font-medium mb-1">Review</p>
+                <p className="text-bone text-xs leading-relaxed">{entry.review}</p>
+              </div>
+            )}
+            {entry.movie.overview && (
+              <div>
+                <p className="text-fog text-xs font-medium mb-1">Overview</p>
+                <p className="text-slate text-xs leading-relaxed line-clamp-4">
+                  {entry.movie.overview}
+                </p>
+              </div>
+            )}
+            {!entry.review && !entry.movie.overview && (
+              <p className="text-slate text-xs">No description available.</p>
+            )}
+          </div>
+        )}
+
+        {(entry.review || entry.movie.overview) && (
+          <p className="text-slate text-xs mt-2 text-right">
+            {expanded ? '▲ less' : '▼ more'}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function PublicProfilePage() {
   const { t, i18n } = useTranslation();
   
@@ -197,38 +272,7 @@ export default function PublicProfilePage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {filteredEntries.map(entry => (
-              <div key={entry.id} className="df-card df-card-hover overflow-hidden">
-                {entry.movie.posterUrl ? (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w300${entry.movie.posterUrl}`}
-                    alt={entry.movie.title}
-                    className="w-full aspect-[2/3] object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full aspect-[2/3] bg-surface-2 flex items-center justify-center">
-                    <span className="text-3xl">🎬</span>
-                  </div>
-                )}
-                <div className="p-3">
-                  <p className="text-bone text-sm font-medium truncate">
-                    {entry.movie.title}
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-slate text-xs">
-                      {entry.movie.releaseYear ?? '—'}
-                    </span>
-                    {entry.rating && (
-                      <span className="text-gold text-xs font-bold">
-                        ★ {entry.rating}
-                      </span>
-                    )}
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full mt-2 inline-block ${STATUS_CLASSES[entry.status]}`}>
-                    {getStatusLabel(entry.status, t)}
-                  </span>
-                </div>
-              </div>
+              <MovieCard key={entry.id} entry={entry} t={t} />
             ))}
           </div>
         )}
