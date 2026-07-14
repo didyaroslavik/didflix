@@ -172,9 +172,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 df-animate-in">
       <div>
-        <p className="text-fog text-sm mb-1">{greeting} 👋</p>
         <h1 className="text-3xl font-display font-semibold text-bone">
-          {user?.displayName || user?.username}
+          {greeting}, {user?.displayName || user?.username} 👋
         </h1>
         <p className="text-fog mt-1">{t('dashboard.overview')}</p>
       </div>
