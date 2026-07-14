@@ -49,6 +49,8 @@ export default {
     movie: 'Film',
     tvShow: 'Serial',
     lowestRated: 'Najniżej oceniane',
+    oldest: 'Najstarsze',
+    byType: 'Filmy najpierw',
   },
   modal: {
     addTitle: 'Dodaj do kolekcji',

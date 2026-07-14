@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 
 type ViewMode = 'grid' | 'list';
-type SortOption = 'newest' | 'rating' | 'title';
+type SortOption = 'newest' | 'oldest' | 'rating' | 'rating_asc' | 'title' | 'type';
 
 const STATUS_CLASSES: Record<string, string> = {
   WATCHED: 'bg-status-watched/15 text-status-watched',
@@ -206,8 +206,11 @@ export default function CollectionPage() {
           className="df-input rounded-lg px-3 py-2 text-sm"
         >
           <option value="newest">{t('collection.newest')}</option>
+          <option value="oldest">{t('collection.oldest')}</option>
           <option value="rating">{t('collection.highestRated')}</option>
+          <option value="rating_asc">{t('collection.lowestRated')}</option>
           <option value="title">{t('collection.alphabetical')}</option>
+          <option value="type">{t('collection.byType')}</option>
         </select>
 
         <div className="ml-auto flex items-center bg-surface-2 border border-hairline rounded-lg p-1">

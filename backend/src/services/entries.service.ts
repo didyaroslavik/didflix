@@ -50,8 +50,11 @@ export class EntriesService {
 
     const orderBy: any = {};
     if (sort === 'rating') orderBy.rating = 'desc';
+    else if (sort === 'rating_asc') orderBy.rating = 'asc';
     else if (sort === 'title') orderBy.movie = { title: 'asc' };
-    else orderBy.createdAt = 'desc'; // default: newest first
+    else if (sort === 'oldest') orderBy.createdAt = 'asc';
+    else if (sort === 'type') orderBy.movie = { type: 'asc' };
+    else orderBy.createdAt = 'desc'; // newest first (default)
 
     const entries = await prisma.entry.findMany({
       where,

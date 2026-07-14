@@ -49,6 +49,8 @@ export default {
     movie: 'Movie',
     tvShow: 'TV Show',
     lowestRated: 'Lowest rated',
+    oldest: 'Oldest first',
+    byType: 'Movies first',
   },
   modal: {
     addTitle: 'Add to collection',

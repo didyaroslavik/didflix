@@ -48,7 +48,9 @@ export default {
     edit: 'Редагувати',
     movie: 'Фільм',
     tvShow: 'Серіал',
+    oldest: 'Спочатку старі',
     lowestRated: 'Найнижча оцінка',
+    byType: 'Спочатку фільми',
   },
   modal: {
     addTitle: 'Додати до колекції',
