@@ -9,6 +9,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell
 } from 'recharts';
+import QuickAdd from '../components/QuickAdd';
 
 const RATING_GRADIENT = ['#5c1a26', '#8f1330', '#b8425a', '#cf9d4f', '#e8c98a'];
 
@@ -169,8 +170,15 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
+  const handleQuickAdd = (entry: Entry) => {
+    setRecentEntries(prev => [entry, ...prev].slice(0, 6));
+    // Refresh stats
+    entriesApi.getStats().then(data => setStats(data.stats));
+  };
+
   return (
     <div className="space-y-8 df-animate-in">
+      {/* Header */}
       <div>
         <h1 className="text-3xl font-display font-semibold text-bone">
           {greeting}, {user?.displayName || user?.username} 👋
@@ -178,6 +186,10 @@ export default function DashboardPage() {
         <p className="text-fog mt-1">{t('dashboard.overview')}</p>
       </div>
 
+      {/* Quick Add - hero action */}
+      <QuickAdd onAdded={handleQuickAdd} />
+
+      {/* Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {loading || !stats ? (
           Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
