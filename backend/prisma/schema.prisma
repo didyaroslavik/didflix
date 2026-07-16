@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,12 +16,15 @@ model User {
   avatarUrl     String?
   bio           String?
   shareToken    String   @unique @default(cuid())
+  viewCount     Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  entries       Entry[]
+  entries          Entry[]
   sentRequests     Friendship[] @relation("SentRequests")
   receivedRequests Friendship[] @relation("ReceivedRequests")
+  likesReceived    ProfileLike[] @relation("LikesReceived")
+  likesGiven       ProfileLike[] @relation("LikesGiven")
 }
 
 model Movie {
@@ -93,6 +91,17 @@ model Friendship {
   receiver   User @relation("ReceivedRequests", fields: [receiverId], references: [id])
 
   @@unique([senderId, receiverId])
+}
+model ProfileLike {
+  id          String   @id @default(cuid())
+  fromUserId  String
+  toUserId    String
+  createdAt   DateTime @default(now())
+
+  fromUser    User @relation("LikesGiven", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser      User @relation("LikesReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId])
 }
 
 enum MediaType {
