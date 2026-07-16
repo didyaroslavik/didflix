@@ -5,6 +5,7 @@ import type { Entry } from '../types';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import Logo from '../components/Logo';
+import { useAuth } from '../context/AuthContext';
 
 const STATUS_CLASSES: Record<string, string> = {
   WATCHED: 'bg-status-watched/15 text-status-watched',
@@ -122,7 +123,13 @@ export default function PublicProfilePage() {
     localStorage.setItem('didflix-lang', code);
   };
 
+  const { user: currentUser } = useAuth();
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [viewCount, setViewCount] = useState(0);
+  const [likeLoading, setLikeLoading] = useState(false);
   const { token } = useParams<{ token: string }>();
+
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [stats, setStats] = useState<PublicStats | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -139,10 +146,32 @@ export default function PublicProfilePage() {
         setProfile(data.profile);
         setStats(data.stats);
         setEntries(data.entries);
+        setLikeCount(data.profile.likeCount);
+        setViewCount(data.profile.viewCount);
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
-  }, [token]);
+
+    if (currentUser) {
+      publicApi.checkLiked(token)
+        .then(data => setLiked(data.liked))
+        .catch(() => {});
+    }
+  }, [token, currentUser]);
+
+  const handleLike = async () => {
+    if (!currentUser || !token) return;
+    setLikeLoading(true);
+    try {
+      const data = await publicApi.toggleLike(token);
+      setLiked(data.liked);
+      setLikeCount(data.likeCount);
+    } catch {
+      // silently fail
+    } finally {
+      setLikeLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -190,7 +219,7 @@ export default function PublicProfilePage() {
               {(profile?.displayName || profile?.username || '?')[0].toUpperCase()}
             </div>
 
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-display font-semibold text-bone">
                 {profile?.displayName || profile?.username}
               </h1>
@@ -198,9 +227,45 @@ export default function PublicProfilePage() {
               {memberYear && (
                 <p className="text-slate text-sm mt-1">{t('profile.memberSince')} {memberYear}</p>
               )}
+
+              {/* Views and likes */}
+              <div className="flex items-center gap-4 mt-2">
+                <span className="flex items-center gap-1.5 text-slate text-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  {viewCount} {viewCount === 1 ? 'view' : 'views'}
+                </span>
+
+                <span className="flex items-center gap-1.5 text-slate text-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? '#c41c3f' : 'none'} stroke={liked ? '#c41c3f' : 'currentColor'} strokeWidth="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  {likeCount} {likeCount === 1 ? 'like' : 'likes'}
+                </span>
+              </div>
             </div>
 
-            <div className="ml-auto flex items-center gap-3">
+            <div className="flex items-center gap-3 ml-auto">
+              {/* Like button - only shown to logged-in users who don't own this profile */}
+              {currentUser && currentUser.shareToken !== token && (
+                <button
+                  onClick={handleLike}
+                  disabled={likeLoading}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    liked
+                      ? 'bg-garnet/20 border-garnet text-garnet-glow hover:bg-garnet/30'
+                      : 'bg-surface-2 border-hairline text-fog hover:text-bone hover:border-garnet/50'
+                  }`}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? '#c41c3f' : 'none'} stroke={liked ? '#c41c3f' : 'currentColor'} strokeWidth="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  {liked ? 'Liked' : 'Like'}
+                </button>
+              )}
+
               {/* Language switcher */}
               <div className="flex items-center bg-surface-2 border border-hairline rounded-lg overflow-hidden">
                 {LANGS.map(lang => (
